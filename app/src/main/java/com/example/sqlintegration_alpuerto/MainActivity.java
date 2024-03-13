@@ -1,6 +1,9 @@
 package com.example.sqlintegration_alpuerto;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
@@ -18,7 +21,7 @@ import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
-    ArrayList notes;
+    ArrayList<Note> notes;
     RecyclerView recyclerView;
     NoteAdapter NoteAdapter;
 
@@ -52,5 +55,37 @@ public class MainActivity extends AppCompatActivity {
                         dialog.cancel();
                     }).show();
         });
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+
+        ItemTouchHelper.SimpleCallback itemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                new NoteHandler(MainActivity.this).delete(notes.get(viewHolder.getAdapterPosition()).getId());
+                notes.remove(viewHolder.getAdapterPosition());
+                NoteAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        loadNotes();
+    }
+
+    public ArrayList<Note> readNotes() {
+        ArrayList<Note> notes = new NoteHandler(this).readNotes();
+        return  notes;
+    }
+
+    public void loadNotes() {
+        notes = readNotes();
+        NoteAdapter = new NoteAdapter(notes, this);
+        recyclerView.setAdapter(NoteAdapter);
     }
 }
