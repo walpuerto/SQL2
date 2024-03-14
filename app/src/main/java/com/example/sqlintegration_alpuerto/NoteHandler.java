@@ -18,6 +18,8 @@ public class NoteHandler extends DatabaseHelper {
         values.put("item", note.getItem());
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
+        boolean isSuccessful = sqLiteDatabase.insert("Note", null, values) > 0;
         sqLiteDatabase.close();
         return isSuccessful;
     }
@@ -49,6 +51,14 @@ public class NoteHandler extends DatabaseHelper {
     public  boolean update(Note note) {
         ContentValues values = new ContentValues();
         values.put("item", note.getItem());
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        boolean isSuccessful = sqLiteDatabase.update("Note", values, "id='"+note.getId()+"'", null) > 0;
+        sqLiteDatabase.close();
+        return isSuccessful;
+    }
+
+    public  boolean delete(int id) {
+        boolean isDeleted;
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         isDeleted = sqLiteDatabase.delete("Note", "id='"+id+"'", null) > 0;
         sqLiteDatabase.close();
